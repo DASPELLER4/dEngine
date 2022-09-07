@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 typedef struct string{
 	char value;
@@ -17,17 +18,17 @@ string_t *findLastCharacter(string_t *string){
 	return curr;
 }
 
-void appendCharacter(string_t *string, char ch){
-	if(string){
-		string_t *last = findLastCharacter(string);
+void appendCharacter(string_t **string, char ch){
+	if(*string){
+		string_t *last = findLastCharacter(*string);
 		string_t *new = malloc(sizeof(string_t));
 		last->next = new;
 		new->value = ch;
 		new->next = NULL;
 	} else {
-		string = malloc(sizeof(string_t));
-		string->value = ch;
-		string->next = NULL;
+		*string = malloc(sizeof(string_t));
+		(*string)->value = ch;
+		(*string)->next = NULL;
 	}
 }
 
@@ -46,7 +47,7 @@ void freeString(string_t *string){
 void appendCharPtr(char *source, string_t *dest, short ifToFreeOrNotToFreeThatIsTheQuestion){
 	int len = strlen(source);
 	for(int i = 0; i < len; i++){
-		appendCharacter(dest, source[i]);
+		appendCharacter(&dest, source[i]);
 	}
 	if(ifToFreeOrNotToFreeThatIsTheQuestion){
 		free(source);	
@@ -70,6 +71,16 @@ string_t *defineStringFromCharPtr(char *start, short ifToFreeOrNotToFreeThatIsTh
 	if(!ifToFreeOrNotToFreeThatIsTheQuestion)
 		start--;
 	return string;
+}
+
+string_t *copyString(string_t *string){
+	string_t *curr = string;
+	string_t *ret = NULL;
+	while(curr){
+		appendCharacter(&ret, curr->value);
+		curr = curr->next;
+	}
+	return ret;
 }
 
 int stringLen(string_t *string){
