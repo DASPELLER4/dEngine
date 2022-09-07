@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 typedef struct string{
 	char value;
