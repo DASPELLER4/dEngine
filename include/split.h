@@ -16,7 +16,7 @@ split_t *splitBy(char *text, char token){
 	split_t *split = calloc(1,sizeof(split_t));
 	int len = strlen(text);
 	int curr,i,j; // curr = current word, i = current character in text, j = current character in word
-	for(curr = i = j = 0; curr<MAXWORDS || i<len; i++){
+	for(curr = i = j = 0; curr<MAXWORDS && i<len; i++){
 		if(j==MAXWORDLENGTH){ // overflow of word length
 			split->splits[curr][j] = 0;
 			j = 0;
