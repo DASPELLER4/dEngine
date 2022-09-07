@@ -1,4 +1,4 @@
-# New Terminal Game Engine
+# dEngine
 Tried making one around a year ago, based off of my 2D renderer, here is my retry!
 
 Hamartia of my previous try:
