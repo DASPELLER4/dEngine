@@ -13,7 +13,7 @@ void execute(split_t* args){
 	// HUGE IF STATEMENT FOR ALL COMMANDS
 	static char projectFolder[512] = {0};
 	if(strcmp(args->splits[0],"help") == 0){
-		printf("HELP PAGE\nhelp - shows this page\n");
+		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\n");
 	} else if(strcmp(args->splits[0],"project") == 0){
 		if(args->length == 2){
 			struct stat check;
