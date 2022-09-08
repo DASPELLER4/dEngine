@@ -11,9 +11,9 @@
 #include "split.h"
 #include "../config.h"
 
-#ifdef USE_VIM
+#if defined(USE_VIM)
 	#define EDITOR "vim "
-#elseif USE_NANO
+#elif defined(USE_NANO)
 	#define EDITOR "nano "
 #else
 	#define EDITOR "cat > "
@@ -50,18 +50,26 @@ void execute(split_t* args){
 		if(!projectFolder[0]){
 			printf("Project not opened, use the project command to open/create a project\n");
 		} else if(args->length == 2){
-			if(access(args->splits[1], F_OK) == 0){
-				chdir(projectFolder);
+			chdir(projectFolder);
+			chdir("Scripts");
+			string_t *fileName = defineStringFromCharPtr(args->splits[1], 0);
+			appendCharPtr(".h", &fileName, 0);
+			char *fName = typeCastToCharPtr(fileName);
+			printf("%s\n", fName);
+			if(access(fName, F_OK) == 0){
 				string_t *command = defineStringFromCharPtr(EDITOR, 0);
-				appendCharPtr(args->splits[1]);
+				appendCharPtr(args->splits[1], &command, 0);
+				appendCharPtr(".h", &command, 0);
 				char *charCommand = typeCastToCharPtr(command);
 				system(charCommand);
 				free(charCommand);
 				freeString(command);
-				chdir("../");
 			} else {
 				printf("Object does not exist or corresponding script file is missing\n");
 			}
+			freeString(fileName);
+			free(fName);
+			chdir("../..");
 		} else {
 			printf("Argument [object name] expected\n");
 		}
