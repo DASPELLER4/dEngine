@@ -43,10 +43,10 @@ void freeString(string_t *string){
 	}
 }
 
-void appendCharPtr(char *source, string_t *dest, short ifToFreeOrNotToFreeThatIsTheQuestion){
+void appendCharPtr(char *source, string_t **dest, short ifToFreeOrNotToFreeThatIsTheQuestion){
 	int len = strlen(source);
 	for(int i = 0; i < len; i++){
-		appendCharacter(&dest, source[i]);
+		appendCharacter(dest, source[i]);
 	}
 	if(ifToFreeOrNotToFreeThatIsTheQuestion){
 		free(source);	
@@ -62,13 +62,11 @@ string_t *defineEmptyString(){
 }
 
 string_t *defineStringFromCharPtr(char *start, short ifToFreeOrNotToFreeThatIsTheQuestion){
-	string_t *string = malloc(sizeof(string_t));
-	string->value = start[0];
-	string->next = NULL;
-	start++; // woop woop finally get to use pointer arithmetic
-	appendCharPtr(start, string, ifToFreeOrNotToFreeThatIsTheQuestion);
-	if(!ifToFreeOrNotToFreeThatIsTheQuestion)
-		start--;
+	string_t *string = NULL;
+	appendCharPtr(start, &string, ifToFreeOrNotToFreeThatIsTheQuestion);
+	if(ifToFreeOrNotToFreeThatIsTheQuestion){
+		free(start);
+	}
 	return string;
 }
 
