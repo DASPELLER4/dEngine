@@ -24,7 +24,7 @@ void execute(split_t* args){
 	// HUGE IF STATEMENT FOR ALL COMMANDS
 	static char projectFolder[512] = {0};
 	if(strcmp(args->splits[0],"help") == 0){
-		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\n");
+		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\nobject - creates/edits object & script and opens a gui to create it\n");
 	} else if(strcmp(args->splits[0],"project") == 0){
 		if(args->length >= 2){
 			struct stat check;
