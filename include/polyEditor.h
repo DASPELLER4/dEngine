@@ -37,8 +37,8 @@ void addVert(int x, int y, short clear){
 		printf("You have exceeded the maximum polygons available, to support larger object complexity\nIncrease the MAXPOLYGONS macro in config.h and re-run make\n");
 		return;
 	}
-	gobject->polygons[gobject->count].v[currVert].a = ((double)x)/((double)glutGet(GLUT_WINDOW_WIDTH))*((double)glutGet(GLUT_WINDOW_WIDTH)/(double)glutGet(GLUT_WINDOW_HEIGHT));
-	gobject->polygons[gobject->count].v[currVert].b = ((double)y)/((double)glutGet(GLUT_WINDOW_HEIGHT));
+	gobject->polygons[gobject->count].v[currVert].a = (double)x/(double)glutGet(GLUT_WINDOW_WIDTH);
+	gobject->polygons[gobject->count].v[currVert].b = (double)y/(double)glutGet(GLUT_WINDOW_HEIGHT);
 	currVert+=1;
 	if(currVert>=3){
 		currVert = 0;
@@ -90,9 +90,9 @@ void display(){
 		float stdBrightness = ((float)gobject->brightness)/5.0f;
 		glColor3f(stdBrightness, stdBrightness, stdBrightness);
 		glBegin(GL_POLYGON);
-			glVertex3f(gobject->polygons[i].v[0].a*2-1, -(gobject->polygons[i].v[0].b*2-1), 0);
-			glVertex3f(gobject->polygons[i].v[1].a*2-1, -(gobject->polygons[i].v[1].b*2-1), 0);
-			glVertex3f(gobject->polygons[i].v[2].a*2-1, -(gobject->polygons[i].v[2].b*2-1), 0);
+			glVertex3f(gobject->polygons[i].v[0].a*2-1,-(gobject->polygons[i].v[0].b*2-1), 0);
+			glVertex3f(gobject->polygons[i].v[1].a*2-1,-(gobject->polygons[i].v[1].b*2-1), 0);
+			glVertex3f(gobject->polygons[i].v[2].a*2-1,-(gobject->polygons[i].v[2].b*2-1), 0);
 		glEnd();
 	}
 	glFlush();
@@ -126,12 +126,13 @@ eObject_t *polyEditor(int brightness){
 	free(j[0]);
 	free(j);
 	//formulate response
+	double ratio = (double)gsize[0]/(double)gsize[1];
 	for(int i = 0; i < gobject->count; i++){
-		gobject->polygons[i].v[0].a *= OBJECTSCALE;
+		gobject->polygons[i].v[0].a *= (double)OBJECTSCALE * ratio;
 		gobject->polygons[i].v[0].b *= OBJECTSCALE;
-		gobject->polygons[i].v[1].a *= OBJECTSCALE;
+		gobject->polygons[i].v[1].a *= (double)OBJECTSCALE * ratio;
 		gobject->polygons[i].v[1].b *= OBJECTSCALE;
-		gobject->polygons[i].v[2].a *= OBJECTSCALE;
+		gobject->polygons[i].v[2].a *= (double)OBJECTSCALE * ratio;
 		gobject->polygons[i].v[2].b *= OBJECTSCALE;
 	}
 	free(gsize);

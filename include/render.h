@@ -89,16 +89,16 @@ void render(rObject_t *object, char **screen){
 		int uboundx = 0;
 		int lboundy = w.ws_row;
 		int uboundy = 0;
-			for(int j = 0; j<3; j++){
-				if(object->polygons[i].v[j].a < lboundx)
-					lboundx = object->polygons[i].v[j].a;
-				else if(object->polygons[i].v[j].b > uboundx)
-					uboundx = object->polygons[i].v[j].b;
-				if(object->polygons[i].v[j].b < lboundy)
-					lboundy = object->polygons[i].v[j].b;
-				else if(object->polygons[i].v[j].b > uboundy)
-					uboundy = object->polygons[i].v[j].b;
-			}	
+		for(int j = 0; j<3; j++){
+			if(object->polygons[i].v[j].a < lboundx)
+				lboundx = object->polygons[i].v[j].a;
+			if(object->polygons[i].v[j].a > uboundx)
+				uboundx = object->polygons[i].v[j].a;
+			if(object->polygons[i].v[j].b < lboundy)
+				lboundy = object->polygons[i].v[j].b;
+			if(object->polygons[i].v[j].b > uboundy)
+				uboundy = object->polygons[i].v[j].b;
+		}
 		for(int y = lboundy; y < uboundy; y++){
 			for(int x = lboundx; x < uboundx; x++){
 				if(pnpoly(object->polygons[i], x, y)){
@@ -116,12 +116,12 @@ void renderObjectPreview(char *fileName){
 		free(object);
 		return;
 	}
-	char **screen = makeScreen();
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	char **screen = makeScreen();
 	render(object, screen);
 	for(int i = 0; i<w.ws_row; i++){
-		printf("%s\n", screen[i]);
+		printf("%s", screen[i]);
 		free(screen[i]);
 	}
 	free(screen);

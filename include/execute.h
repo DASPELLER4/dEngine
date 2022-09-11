@@ -164,10 +164,12 @@ void execute(split_t* args){
 			chdir("Objects");
 			if(access(args->splits[1], F_OK) == 0){
 				renderObjectPreview(args->splits[1]);
+				chdir("../..");
+				sleep(1);
 			} else {
+				chdir("../..");
 				printf("Object doesn't exist\n");
 			}
-			chdir("../..");
 		} else {
 			printf("Argument expected [object name]\n");
 		}
