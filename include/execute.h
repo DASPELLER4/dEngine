@@ -126,10 +126,13 @@ void execute(split_t* args){
 					fclose(fp);
 					fp = fopen(args->splits[1], "a+");
 					int lowestX, lowestY;
-					lowestX = OBJECTSCALE;
+					struct winsize w;
+					ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+					lowestX = OBJECTSCALE*MONOSPACEHEIGHTVWIDTH;
 					lowestY = OBJECTSCALE;
 					for(int i = 0; i<outputObject->count; i++){
 						for(int j = 0; j<3; j++){
+							gobject->polygons[i].v[j].a *= MONOSPACEHEIGHTVWIDTH;
 							if(gobject->polygons[i].v[j].a < lowestX)
 								lowestX = gobject->polygons[i].v[j].a;
 							if(gobject->polygons[i].v[j].b < lowestY)
