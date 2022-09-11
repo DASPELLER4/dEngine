@@ -1,8 +1,6 @@
 #ifndef POLYEDITOR_H
 #define POLYEDITOR_H
 
-#define ELENOFLINE 64
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/freeglut.h>
