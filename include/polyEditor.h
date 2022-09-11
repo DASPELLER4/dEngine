@@ -37,7 +37,7 @@ void addVert(int x, int y, short clear){
 		printf("You have exceeded the maximum polygons available, to support larger object complexity\nIncrease the MAXPOLYGONS macro in config.h and re-run make\n");
 		return;
 	}
-	gobject->polygons[gobject->count].v[currVert].a = ((double)x)/((double)glutGet(GLUT_WINDOW_WIDTH));
+	gobject->polygons[gobject->count].v[currVert].a = ((double)x)/((double)glutGet(GLUT_WINDOW_WIDTH))*((double)glutGet(GLUT_WINDOW_WIDTH)/(double)glutGet(GLUT_WINDOW_HEIGHT));
 	gobject->polygons[gobject->count].v[currVert].b = ((double)y)/((double)glutGet(GLUT_WINDOW_HEIGHT));
 	currVert+=1;
 	if(currVert>=3){
@@ -114,7 +114,7 @@ eObject_t *polyEditor(int brightness){
 	glutInit(&x, j);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowPosition(80, 80);
-	glutInitWindowSize(400, 300);
+	glutInitWindowSize(400, 400);
 	glutCreateWindow("Object Creator | h for Help");
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutDisplayFunc(display);
