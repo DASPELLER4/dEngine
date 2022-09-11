@@ -11,6 +11,7 @@
 #include "split.h"
 #include "../config.h"
 #include "polyEditor.h"
+#include "render.h"
 
 #if defined(USE_VIM)
 	#define EDITOR "vim "
@@ -24,7 +25,7 @@ void execute(split_t* args){
 	// HUGE IF STATEMENT FOR ALL COMMANDS
 	static char projectFolder[512] = {0};
 	if(strcmp(args->splits[0],"help") == 0){
-		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\nobject - creates/edits object & script and opens a gui to create it\n");
+		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\nobject - creates/edits object & script and opens a gui to create it\npreview - previews object in text form\n");
 	} else if(strcmp(args->splits[0],"project") == 0){
 		if(args->length >= 2){
 			struct stat check;
@@ -106,7 +107,7 @@ void execute(split_t* args){
 	} else if(strcmp(args->splits[0],"object") == 0){
 		if(!projectFolder[0]){
 			printf("Project not opened, use the project command to open/create a project\n");
-		} else if(args->length >= 2){
+		} else if(args->length >= 3){
 			int valid = 1;
 			for(int i = 0; args->splits[1][i]; i++){
 				if(args->splits[1][i] > 'z' || args->splits[1][i] < 'a')
@@ -154,7 +155,22 @@ void execute(split_t* args){
 				printf("Name of object cannot include anything other than lowercase alphabetical characters\n");
 			}
 		} else
+			printf("Arguments expected [object name, object brightness]\n");
+	} else if(strcmp(args->splits[0],"preview") == 0){
+		if(!projectFolder[0]){
+			printf("Project not opened, use the project command to open/create a project\n");
+		} else if(args->length >= 2){
+			chdir(projectFolder);
+			chdir("Objects");
+			if(access(args->splits[1], F_OK) == 0){
+				renderObjectPreview(args->splits[1]);
+			} else {
+				printf("Object doesn't exist\n");
+			}
+			chdir("../..");
+		} else {
 			printf("Argument expected [object name]\n");
+		}
 	} else if(strcmp(args->splits[0],"quit") == 0){
 	} else {
 		printf("Command not recognized - run help to see all available commands\n");
