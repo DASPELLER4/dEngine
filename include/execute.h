@@ -12,6 +12,7 @@
 #include "../config.h"
 #include "polyEditor.h"
 #include "render.h"
+#include "genFiles.h"
 
 #if defined(USE_VIM)
 	#define EDITOR "vim "
@@ -25,7 +26,7 @@ void execute(split_t* args){
 	// HUGE IF STATEMENT FOR ALL COMMANDS
 	static char projectFolder[512] = {0};
 	if(strcmp(args->splits[0],"help") == 0){
-		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\nobject - creates/edits object & script and opens a gui to create it\npreview - previews object in text form\n");
+		printf("HELP PAGE\nhelp - shows this page\nquit - quits the program\nproject - opens/creates project folder\nscript - edits existing script file (see object command to create script)\nlist - lists things (use list help for more info)\nobject - creates/edits object & script and opens a gui to create it\npreview - previews object in text form\ncompile - compiles the program\n");
 	} else if(strcmp(args->splits[0],"project") == 0){
 		if(args->length >= 2){
 			struct stat check;
@@ -143,15 +144,17 @@ void execute(split_t* args){
 						fprintf(fp, "%d %d %d %d %d %d %c\n", (int)(gobject->polygons[i].v[0].a-lowestX), (int)(gobject->polygons[i].v[0].b-lowestY), (int)(gobject->polygons[i].v[1].a-lowestX), (int)(gobject->polygons[i].v[1].b-lowestY), (int)(gobject->polygons[i].v[2].a-lowestX), (int)(gobject->polygons[i].v[2].b-lowestY), gobject->brightness-1);
 					}
 					fclose(fp);
+					free(outputObject);
 					chdir("../Scripts");
 					string_t *scriptName = defineStringFromCharPtr(args->splits[1], 0);
-					appendCharPtr(".h", &scriptName, 0);
-					char *charScriptName = typeCastToCharPtr(scriptName);
-					fp = fopen(charScriptName,"w");
-					fclose(fp);
+					appendCharPtr(".h",&scriptName,0);
+					char *scriptNameChar = typeCastToCharPtr(scriptName);
 					freeString(scriptName);
-					free(charScriptName);
-					free(outputObject);
+					if(access(scriptNameChar, F_OK ) == -1)
+						genScriptFile(args->splits[1]);
+					free(scriptNameChar);
+					chdir("../Tools");
+					genAllIncludes();
 				}
 				chdir("../..");
 			} else{
@@ -175,6 +178,27 @@ void execute(split_t* args){
 			}
 		} else {
 			printf("Argument expected [object name]\n");
+		}
+	} else if(strcmp(args->splits[0],"compile") == 0){
+		if(!projectFolder[0]){
+			printf("Project not opened, use the project command to open/create a project\n");
+		} else {
+			chdir(projectFolder);
+			chdir("Tools");
+			genAllIncludes();
+			FILE *fp = fopen("render.h","w+");
+			fprintf(fp, "#ifndef RENDER_H\n#define RENDER_H\n\n#include <sys/ioctl.h>\n#include <stdio.h>\n#include <unistd.h>\n#include <string.h>\n#include <stdlib.h>\n#include <ncurses.h>\n\n#include \"../config.h\"\n\ntypedef struct gVector2i{\n\tint a;\n\tint b;\n} gVector2i_t;\n\ntypedef struct gpolygon{\n\tgVector2i_t v[3];\n\tint lboundx;\n\tint lboundy;\n\tint uboundx;\n\tint uboundy;\n} gPolygon_t;\n\ntypedef struct gobject{\n\tint count;\n\tchar color;\n\tint x;\n\tint y;\n\tgPolygon_t polygons[MAXPOLYGONS];\n} gObject_t;\n\nint readFromFile(char *fileName, gObject_t *dest){\n\tFILE *fp;\n\tchar *line = NULL;\n\tsize_t lineLength = 0;\n\tssize_t read;\n\tfp = fopen(fileName, \"r\");\n\tint currPoly = 0;\n\twhile ((read = getline(&line, &lineLength, fp)) != -1){\n\t\tif(currPoly >= MAXPOLYGONS-1){\n\t\t\tprintf(\"This object has too many polygons, to support larger object complexity\\nIncrease the MAXPOLYGONS macro in config.h and re-run make\\n\");\n\t\t\tfree(line);\n\t\t\treturn 0;\n\t\t}\n\t\tchar *token = strtok(line, \" \");\n\t\tint currWord = 1;\n\t\tint currVert = 0;\n\t\twhile(token){\n\t\t\tif(currWord < 7){\n\t\t\t\tdest->polygons[currPoly].v[currVert].a = atoi(token);\n\t\t\t\tcurrWord++;\n\t\t\t\ttoken = strtok(NULL, \" \");\n\t\t\t\tdest->polygons[currPoly].v[currVert].b = atoi(token);\n\t\t\t}else{\n\t\t\t\tdest->color = token[0];\n\t\t\t}\n\t\t\tcurrWord++;\n\t\t\tcurrVert++;\n\t\t\ttoken = strtok(NULL, \" \");\n\t\t}\n\t\tdest->polygons[currPoly].lboundx = COLS;\n\t\tdest->polygons[currPoly].uboundx = 0;\n\t\tdest->polygons[currPoly].lboundy = LINES;\n\t\tdest->polygons[currPoly].uboundy = 0;\n\t\tfor(int j = 0; j<3; j++){\n\t\t\tif(dest->polygons[currPoly].v[j].a < dest->polygons[currPoly].lboundx)\n\t\t\t\tdest->polygons[currPoly].lboundx = dest->polygons[currPoly].v[j].a;\n\t\t\tif(dest->polygons[currPoly].v[j].a > dest->polygons[currPoly].uboundx)\n\t\t\t\tdest->polygons[currPoly].uboundx = dest->polygons[currPoly].v[j].a;\n\t\t\tif(dest->polygons[currPoly].v[j].b < dest->polygons[currPoly].lboundy)\n\t\t\t\tdest->polygons[currPoly].lboundy = dest->polygons[currPoly].v[j].b;\n\t\t\tif(dest->polygons[currPoly].v[j].b > dest->polygons[currPoly].uboundy)\n\t\t\t\tdest->polygons[currPoly].uboundy = dest->polygons[currPoly].v[j].b;\n\t\t}\n\t\tcurrPoly++;\n\t}\n\tfree(line);\n\tdest->count = currPoly;\n\tfclose(fp);\n\tdest->x = 0;\n\tint maxY=0;\n\tfor(int i = 0; i < dest->count; i++)\n\t\tfor(int j = 0; j < 3; j++)\n\t\t\tif(dest->polygons[i].v[j].b > maxY)\n\t\t\t\tmaxY = dest->polygons[i].v[j].b;\n\tdest->y = LINES-maxY+1;\n\treturn 1;\n}\n\nint pnpoly(gPolygon_t poly, int x, int y){ // https://github.com/eklitzke/pnpoly/blob/master/pnpoly.c\n\tint i, j, c = 0;\n\tfor(i = 0, j = 2; i < 3; j = i++)\n\t\tif (((poly.v[i].b>y) != (poly.v[j].b>y)) && (x < (poly.v[j].a-poly.v[i].a) * (y-poly.v[i].b) / (poly.v[j].b-poly.v[i].b) + poly.v[i].a))\n\t\t\tc = !c;\n\treturn c;\n}\n\nvoid render(gObject_t *object, char **screen){\n\tfor(int i = 0; i < object->count; i++){\n\t\tfor(int y = object->polygons[i].lboundy+object->y; y < object->polygons[i].uboundy+object->y; y++){\n\t\t\tfor(int x = object->polygons[i].lboundx+object->x; x < object->polygons[i].uboundx+object->x; x++){\n\t\t\t\tgPolygon_t tempPoly = (gPolygon_t){(gVector2i_t){object->polygons[i].v[0].a+object->x, object->polygons[i].v[0].b+object->y},(gVector2i_t){object->polygons[i].v[1].a+object->x, object->polygons[i].v[1].b+object->y},(gVector2i_t){object->polygons[i].v[2].a+object->x, object->polygons[i].v[2].b+object->y}, 0, 0, 0, 0};\n\t\t\t\tif(pnpoly(tempPoly, x, y)){\n\t\t\t\t\tif(!(y>=LINES || x>=COLS || x<0 || y<0))\n\t\t\t\t\t\tscreen[y][x] = object->color;\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n}\n#endif\n");
+			fclose(fp);
+			fp = fopen("../config.h","w+");
+			fprintf(fp,"// UNCOMMENT LINE WITH YOUR EDITOR TO USE IT\n#define USE_VIM\n// #define USE_NANO\n\n// CHANGE MAXIMUM POLYGONS\n#define MAXPOLYGONS 32\n\n// DEFINE SCALE OF OBJECTS\n// #define OBJECTSCALE 50\n\n// SETS THE RATIO OF HEIGHT VS WIDTH OF A CHARACTER\n// IF AN OBJECT FILE'S X COMPONENTS ARE ONLY 0, w.ws_pixel MAY BE RETURNING 0\n// IN THAT CASE CHANGE THIS TO AROUND 1.8f\n#define MONOSPACEHEIGHTVWIDTH ((double)w.ws_xpixel/(double)w.ws_ypixel)\n\n// AMOUNT OF POSSIBLE SLEEPS\n#define SLEEPCOUNT 100\n\n// KEY TO CLOSE THE PROGRAM\n#define EXITKEY 'q'\n");
+			fclose(fp);
+			fp = fopen("tfuncs.h","w+");
+			fprintf(fp,"#ifndef TFUNCS_H\n#define TFUNCS_H\n\n#include <time.h>\n#include \"../config.h\"\n\ndouble sleeps[SLEEPCOUNT];\ndouble deltaTime = 0.0;\n\nclock_t begin;\nclock_t end;\n\nint tsleep(int index, double time){\n\tsleeps[index]+=deltaTime;\n\tif(sleeps[index] < time)\n\t\treturn 0;\n\telse\n\t\treturn (sleeps[index]=0)+1;\n}\n\nvoid getDeltaTime(){\n\tend = clock();\n\tdeltaTime = (double)(end - begin) / CLOCKS_PER_SEC;\n\tbegin = end;\n}\n\n#endif\n");
+			fclose(fp);
+			chdir("..");
+			compileToOneFile();
+			system("mkdir -p Completed && cp -r Objects/ Completed/Objects && gcc main.c -o Completed/game -lncurses -ltinfo && echo \"Open the project folder/Completed and run ./game to open the program\"");
+			chdir("..");
 		}
 	} else if(strcmp(args->splits[0],"quit") == 0){
 	} else {
