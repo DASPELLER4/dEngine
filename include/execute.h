@@ -197,7 +197,7 @@ void execute(split_t* args){
 			fclose(fp);
 			chdir("..");
 			compileToOneFile();
-			system("mkdir -p Completed && cp -r Objects/ Completed/Objects && gcc main.c -o Completed/game -lncurses -ltinfo && echo \"Open the project folder/Completed and run ./game to open the program\"");
+			system("mkdir -p Completed && cp -r Objects/ Completed/ && gcc main.c -o Completed/game -lncurses -ltinfo && echo \"Open the project folder/Completed and run ./game to open the program\"");
 			chdir("..");
 		}
 	} else if(strcmp(args->splits[0],"quit") == 0){
