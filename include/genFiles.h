@@ -58,7 +58,7 @@ void compileToOneFile(){
 	while ((files = readdir(dir)) != NULL)
 		if(strcmp("..",files->d_name) && strcmp(".",files->d_name))
 			fprintf(fp,"%sLoopFunc(%sObj,key);\n\t\trender(%sObj, screen);\n\t\t", files->d_name, files->d_name, files->d_name);
-	fprintf(fp,"for(int y = 0; y < LINES; y++){move(y,0);printw(\"%s\", screen[y]);for(int x = 0; x < COLS; x++){screen[y][x] = ' ';}}\n\t\tgetDeltaTime();for(int i = 0; i < SLEEPCOUNT; i++)\n\t\t\tsleeps[i]+=deltaTime;\n\t}\n\t","%s");
+	fprintf(fp,"for(int y = 0; y < LINES; y++){move(y,0);printw(\"%s\", screen[y]);for(int x = 0; x < COLS; x++){screen[y][x] = ' ';}}\n\t\tgetDeltaTime();\n\t\tfor(int i = 0; i < SLEEPCOUNT; i++)\n\t\t\tsleeps[i]+=deltaTime;\n\t}\n\t","%s");
 	rewinddir(dir);
 	while ((files = readdir(dir)) != NULL)
 		if(strcmp("..",files->d_name) && strcmp(".",files->d_name))
