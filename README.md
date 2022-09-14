@@ -6,6 +6,7 @@ Requirements:
 * Linux
 * Vim/Nano/Cat
 * freeglut
+* Ncurses (for execution of the game)
 
 How to compile:
 
