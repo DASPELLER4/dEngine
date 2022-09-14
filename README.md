@@ -10,7 +10,7 @@ Requirements:
 
 How to compile:
 
-    gcc main.c -o gameEngine -lGL -lglut
+    make
     ./gameEngine
 
 Hamartia of my previous try:
