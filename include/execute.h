@@ -193,7 +193,7 @@ void execute(split_t* args){
 			fprintf(fp,"// UNCOMMENT LINE WITH YOUR EDITOR TO USE IT\n#define USE_VIM\n// #define USE_NANO\n\n// CHANGE MAXIMUM POLYGONS\n#define MAXPOLYGONS 32\n\n// DEFINE SCALE OF OBJECTS\n// #define OBJECTSCALE 50\n\n// SETS THE RATIO OF HEIGHT VS WIDTH OF A CHARACTER\n// IF AN OBJECT FILE'S X COMPONENTS ARE ONLY 0, w.ws_pixel MAY BE RETURNING 0\n// IN THAT CASE CHANGE THIS TO AROUND 1.8f\n#define MONOSPACEHEIGHTVWIDTH ((double)w.ws_xpixel/(double)w.ws_ypixel)\n\n// AMOUNT OF POSSIBLE SLEEPS\n#define SLEEPCOUNT 100\n\n// KEY TO CLOSE THE PROGRAM\n#define EXITKEY 'q'\n");
 			fclose(fp);
 			fp = fopen("tfuncs.h","w+");
-			fprintf(fp,"#ifndef TFUNCS_H\n#define TFUNCS_H\n\n#include <time.h>\n#include \"../config.h\"\n\ndouble sleeps[SLEEPCOUNT];\ndouble deltaTime = 0.0;\n\nclock_t begin;\nclock_t end;\n\nint tsleep(int index, double time){\n\tsleeps[index]+=deltaTime;\n\tif(sleeps[index] < time)\n\t\treturn 0;\n\telse\n\t\treturn (sleeps[index]=0)+1;\n}\n\nvoid getDeltaTime(){\n\tend = clock();\n\tdeltaTime = (double)(end - begin) / CLOCKS_PER_SEC;\n\tbegin = end;\n}\n\n#endif\n");
+			fprintf(fp,"#ifndef TFUNCS_H\n#define TFUNCS_H\n\n#include <time.h>\n#include \"../config.h\"\n\ndouble sleeps[SLEEPCOUNT];\ndouble deltaTime = 0.0;\n\nclock_t begin;\nclock_t end;\n\nint tsleep(int index, double time){\n\tif(sleeps[index] < time)\n\t\treturn 0;\n\telse\n\t\treturn (sleeps[index]=0)+1;\n}\n\nvoid getDeltaTime(){\n\tend = clock();\n\tdeltaTime = (double)(end - begin) / CLOCKS_PER_SEC;\n\tbegin = end;\n}\n\n#endif\n");
 			fclose(fp);
 			chdir("..");
 			compileToOneFile();
