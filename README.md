@@ -1,6 +1,8 @@
 # dEngine
 Tried making a game engine around a year ago, based off of my 2D renderer, here is my retry!
 
+<a href="https://raw.githubusercontent.com/DASPELLER4/dEngine/media/dEngineDocs.pdf">Documentation</a>
+
 Requirements:
 
 * Linux
@@ -8,10 +10,6 @@ Requirements:
 * freeglut
 * Ncurses (for execution of the game)
 
-How to compile:
-
-    make
-    ./gameEngine
 
 Hamartia of my previous try:
 
