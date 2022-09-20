@@ -30,7 +30,7 @@ void genScriptFile(char *objectName){
 	freeString(fstring);
 	FILE *fp = fopen(fileName,"w+");
 	free(fileName);
-	fprintf(fp,"#ifndef %s_H\n#define %s_H\n\n#include \"../Tools/tfuncs.h\"\n#include \"../Tools/render.h\"\n\nint %sStartYPos; // because Y doesn't start at zero, thought it might help if you knew where it does start\n\nvoid %sStartFunc(gObject_t *self){\n\t%sStartYPos = self->y;\n\t//Your code here will be ran at the start of the program\n}\n\nvoid %sLoopFunc(gObject_t *self, char keypress){\n\t//Whatever you write here will be ran every frame\n}\n#endif", objectName, objectName, objectName, objectName, objectName, objectName);
+	fprintf(fp,"#ifndef %s_H\n#define %s_H\n\n#include \"../Tools/tfuncs.h\"\n#include \"../Tools/render.h\"\n\nint %sStartYPos; // because Y doesn't start at zero, thought it might help if you knew where it does start\ngObject_t *%sObj;\n\nvoid %sStartFunc(gObject_t *self){\n\t%sStartYPos = self->y;\n\t//Your code here will be ran at the start of the program\n}\n\nvoid %sLoopFunc(gObject_t *self, char keypress){\n\t//Whatever you write here will be ran every frame\n}\n#endif", objectName, objectName, objectName, objectName, objectName, objectName, objectName);
 	fclose(fp);
 }
 
@@ -47,7 +47,7 @@ void compileToOneFile(){
 	rewinddir(dir);
 	while ((files = readdir(dir)) != NULL)
 		if(strcmp("..",files->d_name) && strcmp(".",files->d_name))
-			fprintf(fp,"gObject_t *%sObj = calloc(1, sizeof(gObject_t));\n\treadFromFile(\"Objects/%s\",%sObj);\n\t", files->d_name, files->d_name, files->d_name);
+			fprintf(fp,"%sObj = calloc(1, sizeof(gObject_t));\n\treadFromFile(\"Objects/%s\",%sObj);\n\t", files->d_name, files->d_name, files->d_name);
 	rewinddir(dir);
 	fprintf(fp,"char **screen = calloc(LINES, sizeof(char*));\n\tfor(int x = 0; x < LINES; x++){\n\t\tscreen[x] = calloc(COLS+1, sizeof(char));\n\t\tfor(int z = 0; z < COLS; z++)\n\t\t\tscreen[x][z] = ' ';\n\t}\n\t");
 	while ((files = readdir(dir)) != NULL)
